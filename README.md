@@ -1,52 +1,52 @@
 # Blink - RISC-V Assembly LED Example
 
-Exemplo educacional de controle de GPIO usando Assembly RISC-V para Raspberry Pi Pico 2 W.
+Educational example of GPIO control using RISC-V Assembly for Raspberry Pi Pico 2 W.
 
-## Descrição
+## Description
 
-Este projeto demonstra como controlar um LED usando Assembly RISC-V puro, fazendo-o piscar com intervalos de 250ms. O código acessa diretamente os registradores de hardware do SIO (Single-cycle IO) para controlar o GPIO 15.
+This project demonstrates how to control an LED using pure RISC-V Assembly, blinking it at 250ms intervals. The code directly accesses SIO (Single-cycle IO) hardware registers to control GPIO 15.
 
 ## Hardware
 
-- **Placa:** Raspberry Pi Pico 2 W
-- **Pino LED:** GPIO 15
-- **Arquitetura:** RISC-V
+- **Board:** Raspberry Pi Pico 2 W
+- **LED Pin:** GPIO 15
+- **Architecture:** RISC-V
 
-## Características
+## Features
 
-- Código 100% em Assembly RISC-V
-- Acesso direto aos registradores de hardware SIO
-- Controle de GPIO para ligar/desligar LED
-- Delay configurável (250ms por padrão)
-- Exemplo educacional de programação bare-metal
+- 100% RISC-V Assembly code
+- Direct SIO hardware register access
+- GPIO control for LED on/off
+- Configurable delay (250ms default)
+- Bare-metal programming educational example
 
-## Estrutura do Código
+## Code Structure
 
-O código em `blink.S` realiza:
+The code in `blink.S` performs:
 
-1. **Inicialização do GPIO:** Configura o pino 15 como saída
-2. **Loop Principal:**
-   - Liga o LED (escreve em `SIO_GPIO_OUT_SET`)
-   - Aguarda 250ms
-   - Desliga o LED (escreve em `SIO_GPIO_OUT_CLR`)
-   - Aguarda 250ms
-   - Repete indefinidamente
+1. **GPIO Initialization:** Configures pin 15 as output
+2. **Main Loop:**
+   - Turn LED on (writes to `SIO_GPIO_OUT_SET`)
+   - Wait 250ms
+   - Turn LED off (writes to `SIO_GPIO_OUT_CLR`)
+   - Wait 250ms
+   - Repeat indefinitely
 
-### Registradores Utilizados
+### Registers Used
 
-- `SIO_BASE`: `0xd0000000` - Endereço base do SIO
-- `GPIO_OUT_SET`: Offset `0x18` - Define bits de saída
-- `GPIO_OUT_CLR`: Offset `0x20` - Limpa bits de saída
-- `GPIO_OE_SET`: Offset `0x38` - Habilita saída do GPIO
+- `SIO_BASE`: `0xd0000000` - SIO base address
+- `GPIO_OUT_SET`: Offset `0x18` - Set output bits
+- `GPIO_OUT_CLR`: Offset `0x20` - Clear output bits
+- `GPIO_OE_SET`: Offset `0x38` - Enable GPIO output
 
-## Requisitos
+## Requirements
 
-- Raspberry Pi Pico SDK (versão 2.2.0)
-- Toolchain RISC-V (RISCV_ZCB_RPI_2_2_0_2)
-- CMake (versão 3.13 ou superior)
-- picotool (versão 2.2.0-a4)
+- Raspberry Pi Pico SDK (version 2.2.0)
+- RISC-V Toolchain (RISCV_ZCB_RPI_2_2_0_2)
+- CMake (version 3.13 or higher)
+- picotool (version 2.2.0-a4)
 
-## Compilação
+## Building
 
 ```bash
 mkdir build
@@ -55,51 +55,51 @@ cmake ..
 make
 ```
 
-O processo de build gerará os arquivos:
-- `blink.elf` - Executável
-- `blink.uf2` - Arquivo para upload no Pico
-- `blink.bin` - Imagem binária
-- `blink.hex` - Arquivo HEX
+The build process will generate:
+- `blink.elf` - Executable
+- `blink.uf2` - File for uploading to Pico
+- `blink.bin` - Binary image
+- `blink.hex` - HEX file
 
-## Upload para o Pico
+## Uploading to Pico
 
-1. Pressione e segure o botão BOOTSEL no Pico
-2. Conecte o Pico ao computador via USB
-3. Solte o botão BOOTSEL (o Pico aparecerá como drive USB)
-4. Copie o arquivo `build/blink.uf2` para o drive do Pico
-5. O Pico reiniciará automaticamente e o LED começará a piscar
+1. Press and hold the BOOTSEL button on the Pico
+2. Connect the Pico to your computer via USB
+3. Release the BOOTSEL button (the Pico will appear as a USB drive)
+4. Copy the `build/blink.uf2` file to the Pico drive
+5. The Pico will automatically reboot and the LED will start blinking
 
-## Configuração
+## Configuration
 
-Você pode modificar as seguintes constantes em `blink.S`:
+You can modify the following constants in `blink.S`:
 
-- `LED_PIN`: Pino do GPIO para o LED (padrão: 15)
-- `LED_DELAY_MS`: Intervalo de piscada em milissegundos (padrão: 250)
+- `LED_PIN`: GPIO pin for the LED (default: 15)
+- `LED_DELAY_MS`: Blink interval in milliseconds (default: 250)
 
-## Estrutura do Projeto
+## Project Structure
 
 ```
 blink/
-├── blink.S              # Código Assembly RISC-V
-├── CMakeLists.txt       # Configuração do CMake
-├── pico_sdk_import.cmake # Import do Pico SDK
-├── build/               # Diretório de compilação
-└── .vscode/             # Configurações do VS Code
+├── blink.S              # RISC-V Assembly code
+├── CMakeLists.txt       # CMake configuration
+├── pico_sdk_import.cmake # Pico SDK import
+├── build/               # Build directory
+└── .vscode/             # VS Code settings
 ```
 
-## Aprendizado
+## Learning Objectives
 
-Este projeto é ideal para entender:
-- Programação em Assembly RISC-V
-- Acesso direto a registradores de hardware
-- Controle de GPIO em microcontroladores
-- Estrutura de projetos com Pico SDK
-- Convenções de chamada RISC-V (ABI)
+This project is ideal for understanding:
+- RISC-V Assembly programming
+- Direct hardware register access
+- GPIO control in microcontrollers
+- Pico SDK project structure
+- RISC-V calling conventions (ABI)
 
-## Licença
+## License
 
-Projeto educacional de código aberto.
+Open-source educational project.
 
-## Autor
+## Author
 
-Desenvolvido como exemplo educacional para o curso de Projeto de Sistemas Microprocessados.
+Developed as an educational example for the Microprocessor Systems Design course.
