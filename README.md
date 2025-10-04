@@ -14,25 +14,37 @@ This project demonstrates how to control an LED using pure RISC-V Assembly, blin
 
 ## Features
 
-- 100% RISC-V Assembly code
+- 100% RISC-V Assembly code with modern practices
 - Direct SIO hardware register access
 - GPIO control for LED on/off
 - Configurable delay (250ms default)
+- Proper stack frame management and ABI compliance
+- Assembly macros for code reusability
+- Integration with Pico SDK functions
 - Bare-metal programming educational example
 
 ## Code Structure
 
 The code in `blink.S` performs:
 
-1. **GPIO Initialization:** Configures pin 15 as output
-2. **Main Loop:**
+1. **Stack Frame Setup:** Saves return address (ra) and frame pointer (s0)
+2. **GPIO Initialization:** Calls SDK `gpio_init()` function for pin 15
+3. **GPIO Output Enable:** Sets bit 15 in `GPIO_OE_SET` register
+4. **Main Loop:**
    - Turn LED on (writes to `SIO_GPIO_OUT_SET`)
-   - Wait 250ms
+   - Wait 250ms using `pause` macro
    - Turn LED off (writes to `SIO_GPIO_OUT_CLR`)
-   - Wait 250ms
+   - Wait 250ms using `pause` macro
    - Repeat indefinitely
 
-### Registers Used
+### Assembly Features
+
+- **Macros:** Custom `pause` macro for delay abstraction
+- **Stack Frame:** Proper function prologue with ra/s0 preservation
+- **Saved Registers:** Uses s1 (SIO_BASE) and s2 (LED bitmask) for loop efficiency
+- **SDK Integration:** Calls `gpio_init()` and `sleep_ms()` SDK functions
+
+### Hardware Registers
 
 - `SIO_BASE`: `0xd0000000` - SIO base address
 - `GPIO_OUT_SET`: Offset `0x18` - Set output bits
