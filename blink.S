@@ -19,6 +19,11 @@
 .equ LED_PIN, 15            # GPIO pin for LED
 .equ LED_DELAY_MS, 250      # Delay in milliseconds
 
+.macro pause ms
+    li   a0, \ms        # a0 = LED_DELAY_MS
+    call sleep_ms
+.endm
+
 main:
     # Save return address and frame pointer
     addi sp, sp, -16
@@ -31,34 +36,22 @@ main:
     call gpio_init
 
     # Set GPIO direction to output: set bit 15 in SIO_GPIO_OE_SET
-    li   t0, SIO_BASE            # t0 = SIO base address
-    li   t1, 1                   # t1 = 1
-    li   t2, LED_PIN             # t2 = 15
-    sll  t1, t1, t2              # t1 = 1 << 15 = bit mask for GPIO 15
-    sw   t1, GPIO_OE_SET(t0)     # Enable output for GPIO 15
+    li   s1, SIO_BASE            # t0 = SIO base address
+    li   s2, 1 << LED_PIN        # t1 = 1 << 15 = bit mask for GPIO 15
+    sw   s2, GPIO_OE_SET(s1)     # Enable output for GPIO 15
 
 blink_loop:
     # Turn LED on: set bit 15 in SIO_GPIO_OUT_SET
-    li   t0, SIO_BASE            # t0 = SIO base address
-    li   t1, 1                   # t1 = 1
-    li   t2, LED_PIN             # t2 = 15
-    sll  t1, t1, t2              # t1 = 1 << 15 = bit mask for GPIO 15
-    sw   t1, GPIO_OUT_SET(t0)    # Set GPIO 15 output high
+    sw   s2, GPIO_OUT_SET(s1)    # Set GPIO 15 output high
 
     # Delay 250ms (sleep_ms(LED_DELAY_MS))
-    li   a0, LED_DELAY_MS        # a0 = LED_DELAY_MS
-    call sleep_ms
+    pause LED_DELAY_MS
 
     # Turn LED off: clear bit 15 in SIO_GPIO_OUT_CLR
-    li   t0, SIO_BASE            # t0 = SIO base address
-    li   t1, 1                   # t1 = 1
-    li   t2, LED_PIN             # t2 = 15
-    sll  t1, t1, t2              # t1 = 1 << 15 = bit mask for GPIO 15
-    sw   t1, GPIO_OUT_CLR(t0)    # Set GPIO 15 output low
+    sw   s2, GPIO_OUT_CLR(s1)    # Set GPIO 15 output low
 
     # Delay 250ms (sleep_ms(LED_DELAY_MS))
-    li   a0, LED_DELAY_MS        # a0 = LED_DELAY_MS
-    call sleep_ms
+    pause LED_DELAY_MS
 
     # Loop forever
     j    blink_loop
