@@ -58,13 +58,68 @@ The code in `blink.S` performs:
 - CMake (version 3.13 or higher)
 - picotool (version 2.2.0-a4)
 
+## Getting Started
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/afmiguel/risc-v-blink-asm.git
+```
+
+### 2. Open the project in VS Code
+
+**Windows:**
+```cmd
+cd risc-v-blink-asm
+code .
+```
+
+**macOS / Linux:**
+```bash
+cd risc-v-blink-asm
+code .
+```
+
+> **Note:** The `code .` command opens VS Code in the current folder. If it is not recognized, open VS Code manually and use **File → Open Folder** to select the cloned folder.
+
 ## Building
+
+The recommended way to build this project is through VS Code with the **Raspberry Pi Pico** extension, which automatically manages the SDK, toolchain, CMake and Ninja on all platforms.
+
+### All platforms (VS Code — recommended)
+
+1. Install [VS Code](https://code.visualstudio.com/) and the **Raspberry Pi Pico** extension
+2. Open the project folder in VS Code
+3. The extension detects `CMakeLists.txt` and configures everything automatically
+4. Click **Compile Project** in the bottom status bar
+
+### Windows (terminal)
+
+Open the **Developer Command Prompt** or **PowerShell** with the Pico environment loaded:
+
+```cmd
+mkdir build
+cd build
+cmake -G "Ninja" ..
+ninja
+```
+
+### macOS (terminal)
 
 ```bash
 mkdir build
 cd build
 cmake ..
-make
+ninja
+```
+
+### Linux (terminal)
+
+```bash
+mkdir build
+cd build
+cmake ..
+ninja
 ```
 
 The build process will generate:
