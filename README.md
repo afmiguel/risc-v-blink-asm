@@ -51,6 +51,27 @@ The code in `blink.S` performs:
 - `GPIO_OUT_CLR`: Offset `0x20` - Clear output bits
 - `GPIO_OE_SET`: Offset `0x38` - Enable GPIO output
 
+## Minimum Required Program
+
+While `blink.S` contains ~60 lines to blink an LED, the **smallest valid program** that compiles and runs safely on the Pico 2 W is just three lines:
+
+```asm
+.global main
+main:
+    j main
+```
+
+Each line has a specific and mandatory role:
+
+| Line | Role | What happens without it |
+|------|------|------------------------|
+| `.global main` | Exports the `main` symbol so the linker can find it. The Pico SDK startup code (part of `pico_stdlib`) runs first, initializes the hardware, and then calls `main` by name. | Linker error: `undefined reference to 'main'` |
+| `main:` | Defines the label that marks the entry point of the program. | The `.global` directive has nothing to point to; the symbol does not exist. |
+| `j main` | Infinite loop — jumps back to `main` unconditionally. Without it, the processor would continue executing whatever bytes follow in memory, causing unpredictable behaviour. | Undefined behaviour: the program falls off the end of the code. |
+
+> **Why does the template have so many more lines?**
+> The extra lines in `blink.S` implement real functionality: stack frame setup (ABI compliance), GPIO initialization via SDK calls, hardware register manipulation, a delay macro, and a blink loop. None of that is required just to *compile* — but all of it is required to *blink an LED correctly*.
+
 ## Requirements
 
 - Raspberry Pi Pico SDK (version 2.2.0)
