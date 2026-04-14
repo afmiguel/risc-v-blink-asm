@@ -154,6 +154,10 @@ blink/
 └── .vscode/             # VS Code settings
 ```
 
+## Additional Resources
+
+- [pico_stdlib RISC-V ABI Reference](https://afmiguel.github.io/pico-riscv-asm-reference/) — How to call Pico SDK functions from RISC-V Assembly, with argument-to-register mapping and annotated examples for each function.
+
 ## Learning Objectives
 
 This project is ideal for understanding:
