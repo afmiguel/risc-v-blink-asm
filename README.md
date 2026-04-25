@@ -4,7 +4,7 @@ Educational example of GPIO control using RISC-V Assembly for Raspberry Pi Pico 
 
 ## Description
 
-This project demonstrates how to control an LED using pure RISC-V Assembly, blinking it at 250ms intervals. The code directly accesses SIO (Single-cycle IO) hardware registers to control GPIO 15.
+This project demonstrates how to control an LED from RISC-V Assembly, blinking it at 250ms intervals. Rather than accessing hardware registers directly, the assembly code calls a thin C API layer (`pico_gpio_api.c`) that wraps the Pico SDK. This two-layer design keeps the assembly code simple and focused on control flow and calling conventions.
 
 ## Hardware
 
@@ -14,46 +14,49 @@ This project demonstrates how to control an LED using pure RISC-V Assembly, blin
 
 ## Features
 
-- 100% RISC-V Assembly code with modern practices
-- Direct SIO hardware register access
-- GPIO control for LED on/off
-- Configurable delay (250ms default)
-- Proper stack frame management and ABI compliance
-- Assembly macros for code reusability
-- Integration with Pico SDK functions
+- RISC-V Assembly entry point with clean, readable control flow
+- Simplified C API layer callable directly from assembly
+- GPIO abstraction through `pico_gpio_init` / `pico_gpio_write` / `pico_gpio_read`
+- Configurable LED pin and delay via `.equ` constants
+- RISC-V calling convention (ABI) in practice: argument registers and function calls
+- Integration with Pico SDK timing (`sleep_ms`)
 - Bare-metal programming educational example
 
 ## Code Structure
 
-The code in `blink.S` performs:
+### Architecture
 
-1. **Stack Frame Setup:** Saves return address (ra) and frame pointer (s0)
-2. **GPIO Initialization:** Calls SDK `gpio_init()` function for pin 15
-3. **GPIO Output Enable:** Sets bit 15 in `GPIO_OE_SET` register
-4. **Main Loop:**
-   - Turn LED on (writes to `SIO_GPIO_OUT_SET`)
-   - Wait 250ms using `pause` macro
-   - Turn LED off (writes to `SIO_GPIO_OUT_CLR`)
-   - Wait 250ms using `pause` macro
+```
+blink.S  ──calls──►  pico_gpio_api.c  ──calls──►  Pico SDK  ──►  Hardware
+```
+
+### `blink.S` — Assembly entry point
+
+Defines configuration constants and implements `main`:
+
+1. **GPIO Initialisation:** Calls `pico_gpio_init(LED_PIN, DIR_OUT)` to configure pin 15 as output
+2. **Main Loop:**
+   - Turn LED on via `pico_gpio_write(LED_PIN, HIGH)`
+   - Wait 250 ms via `sleep_ms(DELAY_MS)`
+   - Turn LED off via `pico_gpio_write(LED_PIN, LOW)`
+   - Wait 250 ms via `sleep_ms(DELAY_MS)`
    - Repeat indefinitely
 
-### Assembly Features
+### `pico_gpio_api.c` — C GPIO wrapper
 
-- **Macros:** Custom `pause` macro for delay abstraction
-- **Stack Frame:** Proper function prologue with ra/s0 preservation
-- **Saved Registers:** Uses s1 (SIO_BASE) and s2 (LED bitmask) for loop efficiency
-- **SDK Integration:** Calls `gpio_init()` and `sleep_ms()` SDK functions
+Provides three integer-based functions designed to be called from RISC-V Assembly following the standard calling convention (arguments in `a0`–`a7`, return value in `a0`):
 
-### Hardware Registers
+| Function | Signature | Description |
+|---|---|---|
+| `pico_gpio_init` | `(int pin, int is_output)` | Initialises a pin and sets its direction |
+| `pico_gpio_write` | `(int pin, int value)` | Drives a pin high (1) or low (0) |
+| `pico_gpio_read` | `(int pin) → int` | Returns the current level of a pin (1 or 0) |
 
-- `SIO_BASE`: `0xd0000000` - SIO base address
-- `GPIO_OUT_SET`: Offset `0x18` - Set output bits
-- `GPIO_OUT_CLR`: Offset `0x20` - Clear output bits
-- `GPIO_OE_SET`: Offset `0x38` - Enable GPIO output
+Each function wraps the corresponding Pico SDK call (`gpio_init`, `gpio_set_dir`, `gpio_put`, `gpio_get`) and translates between integer arguments and SDK types.
 
 ## Minimum Required Program
 
-While `blink.S` contains ~60 lines to blink an LED, the **smallest valid program** that compiles and runs safely on the Pico 2 W is just three lines:
+While `blink.S` contains ~45 lines to blink an LED, the **smallest valid program** that compiles and runs safely on the Pico 2 W is just three lines:
 
 ```asm
 .global main
@@ -70,7 +73,7 @@ Each line has a specific and mandatory role:
 | `j main` | Infinite loop — jumps back to `main` unconditionally. Without it, the processor would continue executing whatever bytes follow in memory, causing unpredictable behaviour. | Undefined behaviour: the program falls off the end of the code. |
 
 > **Why does the template have so many more lines?**
-> The extra lines in `blink.S` implement real functionality: stack frame setup (ABI compliance), GPIO initialization via SDK calls, hardware register manipulation, a delay macro, and a blink loop. None of that is required just to *compile* — but all of it is required to *blink an LED correctly*.
+> The extra lines in `blink.S` implement real functionality: GPIO initialisation via the C API, a delay loop, and a blink loop. None of that is required just to *compile* — but all of it is required to *blink an LED correctly*.
 
 ## Requirements
 
@@ -159,20 +162,23 @@ The build process will generate:
 
 ## Configuration
 
-You can modify the following constants in `blink.S`:
+Modify the following constants at the top of `blink.S`:
 
-- `LED_PIN`: GPIO pin for the LED (default: 15)
-- `LED_DELAY_MS`: Blink interval in milliseconds (default: 250)
+| Constant | Default | Description |
+|---|---|---|
+| `LED_PIN` | `15` | GPIO pin connected to the LED |
+| `DELAY_MS` | `250` | Blink interval in milliseconds |
 
 ## Project Structure
 
 ```
-blink/
-├── blink.S              # RISC-V Assembly code
-├── CMakeLists.txt       # CMake configuration
-├── pico_sdk_import.cmake # Pico SDK import
-├── build/               # Build directory
-└── .vscode/             # VS Code settings
+risc-v-blink-asm/
+├── blink.S               # RISC-V Assembly entry point (main)
+├── pico_gpio_api.c       # C GPIO wrapper callable from assembly
+├── CMakeLists.txt        # CMake build configuration
+├── pico_sdk_import.cmake # Pico SDK import helper
+├── build/                # Build output directory
+└── .vscode/              # VS Code and Pico extension settings
 ```
 
 ## Additional Resources
@@ -182,11 +188,11 @@ blink/
 ## Learning Objectives
 
 This project is ideal for understanding:
-- RISC-V Assembly programming
-- Direct hardware register access
-- GPIO control in microcontrollers
-- Pico SDK project structure
-- RISC-V calling conventions (ABI)
+- RISC-V Assembly programming and control flow
+- RISC-V calling conventions (ABI): argument registers, return values, callee-saved registers
+- Cross-language function calls between assembly and C
+- GPIO control through a layered software abstraction
+- Pico SDK project structure and CMake build system
 
 ## License
 

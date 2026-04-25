@@ -1,50 +1,41 @@
 /**
  * RISC-V Assembly Blink Example
- * Using SDK header definitions for hardware access
+ * Usando API simplificada para estudantes
  */
-
-#include "hardware/regs/addressmap.h"
-#include "hardware/regs/sio.h"
 
 .section .text
 .global main
 .type main, @function
 
-# Configuration
-.equ LED_PIN, 15            # GPIO pin for LED
-.equ LED_DELAY_MS, 250      # Delay in milliseconds
-
-.macro pause ms
-    li   a0, \ms
-    call sleep_ms
-.endm
+# Definições para os estudantes
+.equ LED_PIN, 15
+.equ DIR_OUT, 1
+.equ HIGH,    1
+.equ LOW,     0
+.equ DELAY_MS, 250
 
 main:
-    # Save return address and registers
-    addi sp, sp, -16
-    sw   ra, 12(sp)
-    sw   s0, 8(sp)
-    addi s0, sp, 16
-
-    # 1. Initialize GPIO using SDK function (Symbol exists)
+    # Configura o pino: pico_gpio_init(pin=15, is_output=1)
     li   a0, LED_PIN
-    call gpio_init
-
-    # 2. Set GPIO direction to output using SDK register definitions
-    li   t0, SIO_BASE
-    li   t1, (1 << LED_PIN)
-    sw   t1, SIO_GPIO_OE_SET_OFFSET(t0)
+    li   a1, DIR_OUT
+    call pico_gpio_init
 
 blink_loop:
-    # 3. Turn LED on (SIO_GPIO_OUT_SET)
-    sw   t1, SIO_GPIO_OUT_SET_OFFSET(t0)
+    # Liga LED: pico_gpio_write(pin=15, value=1)
+    li   a0, LED_PIN
+    li   a1, HIGH
+    call pico_gpio_write
 
-    pause LED_DELAY_MS
+    li   a0, DELAY_MS
+    call sleep_ms
 
-    # 4. Turn LED off (SIO_GPIO_OUT_CLR)
-    sw   t1, SIO_GPIO_OUT_CLR_OFFSET(t0)
+    # Desliga LED: pico_gpio_write(pin=15, value=0)
+    li   a0, LED_PIN
+    li   a1, LOW
+    call pico_gpio_write
 
-    pause LED_DELAY_MS
+    li   a0, DELAY_MS
+    call sleep_ms
 
     j    blink_loop
 
