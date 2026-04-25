@@ -33,18 +33,14 @@ project(blink C CXX ASM)
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
 
-# Add executable. Default name is the project name, version 0.1
-
+# Add executable
 add_executable(blink
     blink.S
+    pico_gpio_api.c
     )
 
 # pull in common dependencies
 target_link_libraries(blink pico_stdlib)
 
-
-
 # create map/bin/hex file etc.
 pico_add_extra_outputs(blink)
-
-# add url via pico_set_program_url

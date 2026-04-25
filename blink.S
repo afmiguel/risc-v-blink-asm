@@ -1,59 +1,42 @@
 /**
  * RISC-V Assembly Blink Example
- * Educational example of GPIO control using RISC-V assembly
+ * Usando API simplificada para estudantes
  */
 
 .section .text
 .global main
 .type main, @function
 
-# Hardware Register Addresses
-.equ SIO_BASE, 0xd0000000   # Single-cycle IO base address
-
-# SIO Register Offsets
-.equ GPIO_OUT_SET, 0x18     # Set GPIO output bits
-.equ GPIO_OUT_CLR, 0x20     # Clear GPIO output bits
-.equ GPIO_OE_SET, 0x38      # Set GPIO output enable
-
-# Configuration
-.equ LED_PIN, 15            # GPIO pin for LED
-.equ LED_DELAY_MS, 250      # Delay in milliseconds
-
-.macro pause ms
-    li   a0, \ms        # a0 = LED_DELAY_MS
-    call sleep_ms
-.endm
+# Definições para os estudantes
+.equ LED_PIN, 15
+.equ DIR_OUT, 1
+.equ HIGH,    1
+.equ LOW,     0
+.equ DELAY_MS, 250
 
 main:
-    # Save return address and frame pointer
-    addi sp, sp, -16
-    sw   ra, 12(sp)
-    sw   s0, 8(sp)
-    addi s0, sp, 16
-
-    # Initialize GPIO using SDK function (gpio_init is not inline, so we can call it directly)
-    li   a0, LED_PIN             # a0 = LED_PIN
-    call gpio_init
-
-    # Set GPIO direction to output: set bit 15 in SIO_GPIO_OE_SET
-    li   s1, SIO_BASE            # t0 = SIO base address
-    li   s2, 1 << LED_PIN        # t1 = 1 << 15 = bit mask for GPIO 15
-    sw   s2, GPIO_OE_SET(s1)     # Enable output for GPIO 15
+    # Configura o pino: pico_gpio_init(pin=15, is_output=1)
+    li   a0, LED_PIN
+    li   a1, DIR_OUT
+    call pico_gpio_init
 
 blink_loop:
-    # Turn LED on: set bit 15 in SIO_GPIO_OUT_SET
-    sw   s2, GPIO_OUT_SET(s1)    # Set GPIO 15 output high
+    # Liga LED: pico_gpio_write(pin=15, value=1)
+    li   a0, LED_PIN
+    li   a1, HIGH
+    call pico_gpio_write
 
-    # Delay 250ms (sleep_ms(LED_DELAY_MS))
-    pause LED_DELAY_MS
+    li   a0, DELAY_MS
+    call sleep_ms
 
-    # Turn LED off: clear bit 15 in SIO_GPIO_OUT_CLR
-    sw   s2, GPIO_OUT_CLR(s1)    # Set GPIO 15 output low
+    # Desliga LED: pico_gpio_write(pin=15, value=0)
+    li   a0, LED_PIN
+    li   a1, LOW
+    call pico_gpio_write
 
-    # Delay 250ms (sleep_ms(LED_DELAY_MS))
-    pause LED_DELAY_MS
+    li   a0, DELAY_MS
+    call sleep_ms
 
-    # Loop forever
     j    blink_loop
 
 .size main, .-main
