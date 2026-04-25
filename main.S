@@ -5,7 +5,6 @@
 
 .section .text
 .global main
-.type main, @function
 
 # Definições para os estudantes
 .equ LED_PIN, 15
@@ -38,5 +37,3 @@ blink_loop:
     call sleep_ms
 
     j    blink_loop
-
-.size main, .-main

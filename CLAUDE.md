@@ -29,7 +29,7 @@ Build outputs land in `build/`: `blink.uf2` (flash to Pico), `blink.elf`, `blink
 
 The project uses a two-layer design so students can write clean assembly without dealing with raw SDK calling conventions:
 
-- **`blink.S`** — RISC-V assembly entry point (`main`). Uses the simplified C API below. Constants `LED_PIN` (15) and `DELAY_MS` (250) are defined as `.equ` at the top. No stack prologue is needed because `main` never returns.
+- **`main.S`** — RISC-V assembly entry point (`main`). Uses the simplified C API below. Constants `LED_PIN` (15) and `DELAY_MS` (250) are defined as `.equ` at the top. No stack prologue is needed because `main` never returns.
 - **`pico_gpio_api.c`** — Thin C wrapper around the Pico SDK. Exposes three functions callable from assembly with simple integer arguments:
   - `pico_gpio_init(pin, is_output)` — calls `gpio_init` + `gpio_set_dir`
   - `pico_gpio_write(pin, value)` — calls `gpio_put`

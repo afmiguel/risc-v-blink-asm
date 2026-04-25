@@ -27,10 +27,10 @@ This project demonstrates how to control an LED from RISC-V Assembly, blinking i
 ### Architecture
 
 ```
-blink.S  ──calls──►  pico_gpio_api.c  ──calls──►  Pico SDK  ──►  Hardware
+main.S  ──calls──►  pico_gpio_api.c  ──calls──►  Pico SDK  ──►  Hardware
 ```
 
-### `blink.S` — Assembly entry point
+### `main.S` — Assembly entry point
 
 Defines configuration constants and implements `main`:
 
@@ -56,7 +56,7 @@ Each function wraps the corresponding Pico SDK call (`gpio_init`, `gpio_set_dir`
 
 ## Minimum Required Program
 
-While `blink.S` contains ~45 lines to blink an LED, the **smallest valid program** that compiles and runs safely on the Pico 2 W is just three lines:
+While `main.S` contains ~45 lines to blink an LED, the **smallest valid program** that compiles and runs safely on the Pico 2 W is just three lines:
 
 ```asm
 .global main
@@ -73,7 +73,7 @@ Each line has a specific and mandatory role:
 | `j main` | Infinite loop — jumps back to `main` unconditionally. Without it, the processor would continue executing whatever bytes follow in memory, causing unpredictable behaviour. | Undefined behaviour: the program falls off the end of the code. |
 
 > **Why does the template have so many more lines?**
-> The extra lines in `blink.S` implement real functionality: GPIO initialisation via the C API, a delay loop, and a blink loop. None of that is required just to *compile* — but all of it is required to *blink an LED correctly*.
+> The extra lines in `main.S` implement real functionality: GPIO initialisation via the C API, a delay loop, and a blink loop. None of that is required just to *compile* — but all of it is required to *blink an LED correctly*.
 
 ## Requirements
 
@@ -162,7 +162,7 @@ The build process will generate:
 
 ## Configuration
 
-Modify the following constants at the top of `blink.S`:
+Modify the following constants at the top of `main.S`:
 
 | Constant | Default | Description |
 |---|---|---|
@@ -173,7 +173,7 @@ Modify the following constants at the top of `blink.S`:
 
 ```
 risc-v-blink-asm/
-├── blink.S               # RISC-V Assembly entry point (main)
+├── main.S               # RISC-V Assembly entry point (main)
 ├── pico_gpio_api.c       # C GPIO wrapper callable from assembly
 ├── CMakeLists.txt        # CMake build configuration
 ├── pico_sdk_import.cmake # Pico SDK import helper
